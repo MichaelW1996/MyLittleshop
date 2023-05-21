@@ -22,7 +22,6 @@ Product.init(
       type: DataTypes.DECIMAL(10, 2), //sets number of decimal places
       allowNull: false,
       validate: {
-        //validate is a decimal
         isDecimal: true,
       },
     },
