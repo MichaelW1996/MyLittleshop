@@ -22,6 +22,7 @@ Product.init(
       type: DataTypes.DECIMAL(10, 2), //sets number of decimal places
       allowNull: false,
       validate: {
+        //checks the entry fits the data type
         isDecimal: true,
       },
     },
@@ -30,17 +31,18 @@ Product.init(
       allowNull: false,
       defaultValue: 10,
       validate: {
+        //checks the entry fits the data type
         isInt: true,
       },
     },
     category_id: {
       type: DataTypes.INTEGER,
       references: {
+        //references the category model
         model: "category",
         key: "id",
       },
     },
-    // define columns
   },
   {
     sequelize,
