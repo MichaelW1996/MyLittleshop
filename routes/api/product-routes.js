@@ -7,9 +7,9 @@ const { Product, Category, Tag, ProductTag } = require("../../models");
 router.get("/", async (req, res) => {
   try {
     const products = await Product.findAll({
-      include: [{ model: Category }, { model: Tag }],
+      include: [Category, Tag], //find all in product model and include the referenced data in category and tag
     });
-    res.status(200).json(products);
+    res.status(200).json(products); //show the user the data retreived
   } catch (err) {
     console.error("Error occured", err);
     res.status(500).json({ error: "An error occured" });
@@ -22,13 +22,13 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findOne({
-      where: { id: req.params.id },
-      include: [{ model: Category }, { model: Tag }],
+      where: { id: req.params.id }, //find one product, where the id matches the end of path /:id
+      include: [Category, Tag],
     });
     if (product) {
-      res.status(200).json(product);
+      res.status(200).json(product); //if a success, show the user the data
     } else {
-      res.status(404).json({ error: "Not found" });
+      res.status(404).json({ error: "Not found" }); //else tell the user there is no data with this id
     }
   } catch (err) {
     console.error(err);
@@ -63,14 +63,14 @@ router.post("/", (req, res) => {
       // if no product tags, just respond
       res.status(200).json(product);
     })
-    .then((productTagIds) => res.status(200).json(productTagIds))
+    .then((productTagIds) => res.status(200).json("Product created"))
     .catch((err) => {
       console.log(err);
       res.status(400).json(err);
     });
 });
 
-// update product i
+// update product by id
 router.put("/:id", (req, res) => {
   // update product data
   Product.update(req.body, {
@@ -83,6 +83,10 @@ router.put("/:id", (req, res) => {
       return ProductTag.findAll({ where: { product_id: req.params.id } });
     })
     .then((productTags) => {
+      if (!req.body.tagIds) {
+        //added this incase there is no tags in req body - the case if only updating name - if not included the product updates but the user sees the fail condition
+        return "Product updated";
+      }
       // get list of current tag_ids
       const productTagIds = productTags.map(({ tag_id }) => tag_id);
       // create filtered list of new tag_ids
@@ -107,7 +111,7 @@ router.put("/:id", (req, res) => {
     })
     .then((updatedProductTags) => res.json(updatedProductTags))
     .catch((err) => {
-      // console.log(err);
+      console.error(err);
       res.status(400).json(err);
     });
 });
@@ -115,13 +119,14 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const product = await Product.destroy({
-      where: { id: req.params.id },
+      where: { id: req.params.id }, //delete where product id matches the id at end of path /:id
     });
     if (!product) {
+      //if nothing is returned tell user nothing was found at the id given
       res.status(404).json({ message: "not found" });
       return;
     }
-    res.status(200).json(product);
+    res.status(200).json("product deleted");
   } catch (err) {
     res.status(500).json(err);
   }
